@@ -1,8 +1,9 @@
 #ifndef SIMULATION_ENTITY_H
 #define SIMULATION_ENTITY_H
 
-#include <any>
 #include <map>
+#include <memory>
+#include <vector>
 
 namespace Engine {
     struct Entity {
@@ -12,11 +13,12 @@ namespace Engine {
         void setSignature(std::size_t componentID);
         std::vector<bool>& getSignature();
 
-        template<typename C>
+        template <typename C>
         void setComponent(std::size_t componentID);
 
         std::map<std::size_t, std::shared_ptr<Component>>& getComponents();
         [[nodiscard]] std::size_t getID() const;
+
     private:
         std::size_t id {};
         std::vector<bool> signature {};

@@ -1,8 +1,6 @@
 #ifndef SIMULATION_COMPONENT_H
 #define SIMULATION_COMPONENT_H
 
-#include <bitset>
-
 namespace Engine {
     struct Component {
         Component() = default;

@@ -1,7 +1,6 @@
 #ifndef SIMULATION_WORLD_H
 #define SIMULATION_WORLD_H
 
-#include <algorithm>
 #include <map>
 
 namespace Engine {

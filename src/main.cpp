@@ -3,6 +3,7 @@
 #include <csignal>
 #include <iostream>
 #include <thread>
+
 using namespace Engine;
 
 struct Signal : Component {};
