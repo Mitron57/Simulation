@@ -1,9 +1,22 @@
 cmake_minimum_required(VERSION 3.20)
 project(simulation)
 
+#Switch solutions by commenting undesired lines
+set(SIMULATION_100 true)
+#set(SIMULATION_101 true)
+#set(SIMULATION_151 true)
+
 add_library(${PROJECT_NAME}.Library INTERFACE)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE simulation/engine/include)
 target_include_directories(${PROJECT_NAME}.Library INTERFACE simulation/engine/src)
+
+if (DEFINED SIMULATION_100)
+    target_include_directories(${PROJECT_NAME}.Library INTERFACE "100")
+elseif (DEFINED SIMULATION_101)
+    target_include_directories(${PROJECT_NAME}.Library INTERFACE "101")
+elseif (DEFINED SIMULATION_151)
+    target_include_directories(${PROJECT_NAME}.Library INTERFACE "151")
+endif ()
 
 add_executable(${PROJECT_NAME} src/main.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE ${PROJECT_NAME}.Library)
