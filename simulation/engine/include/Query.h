@@ -4,7 +4,7 @@
 namespace Engine {
     template <typename... C>
     struct Query {
-        [[nodiscard]] static std::vector<std::size_t> getTypes() {
+        [[nodiscard]] static std::vector<std::size_t> getTypeHash() {
             return {typeid(C).hash_code()...};
         }
     };

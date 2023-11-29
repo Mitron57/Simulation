@@ -2,14 +2,17 @@
 
 namespace Engine {
     void Entity::setSignature(std::size_t componentID) {
-        auto size = signature.size();
-        for (std::size_t i {size}; i < componentID; ++i) {
-            signature.push_back(false);
+        if (std::size_t size = signature.size(); componentID >= size) {
+            for (std::size_t i {size}; i < componentID; ++i) {
+                signature.push_back(0);
+            }
+            signature.push_back(1);
+            return;
         }
-        signature.push_back(true);
+        signature[componentID] = 1;
     }
 
-    std::vector<bool>& Entity::getSignature() {
+    const std::vector<std::uint8_t>& Entity::getSignature() const {
         return signature;
     }
 
@@ -18,7 +21,7 @@ namespace Engine {
         components[componentID] = std::make_shared<C>();
     }
 
-    std::map<std::size_t, std::shared_ptr<Component>>& Entity::getComponents() {
+    const std::map<std::size_t, std::shared_ptr<Component>>& Entity::getComponents() const {
         return components;
     }
     std::size_t Entity::getID() const {

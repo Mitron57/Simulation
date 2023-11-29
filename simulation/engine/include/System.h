@@ -6,8 +6,10 @@ namespace Engine {
         System() = default;
         virtual ~System() = default;
 
-        virtual void onAwake() = 0;
-        virtual void onUpdate() = 0;
+        virtual void onAwake() {}
+        virtual bool onUpdate() {
+            return true;
+        };
     };
 }
 

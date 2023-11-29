@@ -2,17 +2,18 @@
 #define SIMULATION_WORLD_H
 
 #include <map>
+#include <unordered_set>
 
 namespace Engine {
     struct World {
-        World() = default;
+        using Archetypes =
+            std::map<std::size_t, std::vector<std::shared_ptr<Entity>>>;
+        static std::shared_ptr<Entity> createEntity();
 
-        static std::size_t createEntity();
-
-        static void deleteEntity(std::size_t id);
+        static void deleteEntity(const Entity& entity);
 
         template <typename C>
-        static void addComponent(std::size_t entityID);
+        static void addComponent(Entity& entity);
 
         template <typename S>
         static void addSystem();
@@ -21,34 +22,22 @@ namespace Engine {
 
         template <typename C>
         static std::size_t getComponentID();
+        static std::size_t getComponentID(std::size_t hash);
+        template <typename... T>
+        static std::tuple<std::shared_ptr<T>...> getComponents(Entity& entity);
 
-        static std::map<std::size_t, Entity>& getAllEntities();
+        static const std::map<std::size_t, std::shared_ptr<Entity>>& getAllEntities();
+        static const Archetypes& getArchetypes();
 
-        template <typename...>
-        struct Filter;
-
-        template <typename C>
-        struct Filter<C> {
-            Filter() = delete;
-            static std::vector<std::shared_ptr<Entity>> filter();
-        };
-
-        template <typename C, typename... C2>
-        struct Filter<C, With<C2...>> {
-            Filter() = delete;
-            static std::vector<std::shared_ptr<Entity>> filter();
-        };
-
-        template <typename C, typename... C2>
-        struct Filter<C, Without<C2...>> {
-            Filter() = delete;
-            static std::vector<std::shared_ptr<Entity>> filter();
-        };
+        static void addArchetype(
+            const std::vector<std::shared_ptr<Entity>>& archetype
+        );
 
     private:
-        static std::map<std::size_t, Entity> entities;
-        static std::vector<std::shared_ptr<System>> systems;
+        static std::map<std::size_t, std::shared_ptr<Entity>> entities;
+        static std::vector<std::unique_ptr<System>> systems;
         static std::map<std::size_t, std::size_t> componentsID;
+        static Archetypes archetypes;
         static std::size_t componentID;
     };
 }  // namespace Engine
