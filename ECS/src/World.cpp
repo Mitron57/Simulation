@@ -13,20 +13,24 @@ namespace ECS {
         return entities.at(entityID++);
     }
 
-    void Manager::deleteEntity(const Entity& entity) {
-        entities.erase(entity.getID());
-        std::erase_if(
-            archetypes[Utils::bitSequenceToULL(entity.getSignature())],
-            [id = entity.getID()](auto entity) { return id == entity->getID(); }
-        );
+    void Manager::deleteEntity(std::shared_ptr<Entity> entity) {
+        if (entity) {
+            entities.erase(entity->getID());
+            std::erase_if(
+                archetypes[Utils::bitSequenceToULL(entity->getSignature())],
+                [id = entity->getID()](auto entity) { return id == entity->getID(); }
+            );
+        }
     }
     template <typename C>
-    void Manager::addComponent(Entity& entity) {
-        if (!componentsID.contains(typeid(C).hash_code())) {
-            componentsID[typeid(C).hash_code()] = componentID++;
+    void Manager::addComponent(const std::shared_ptr<Entity>& entity) {
+        if (entity) {
+            if (!componentsID.contains(typeid(C).hash_code())) {
+                componentsID[typeid(C).hash_code()] = componentID++;
+            }
+            entity->setComponent<C>(componentsID[typeid(C).hash_code()]);
+            entity->setSignature(componentsID[typeid(C).hash_code()]);
         }
-        entity.setComponent<C>(componentsID[typeid(C).hash_code()]);
-        entity.setSignature(componentsID[typeid(C).hash_code()]);
     }
 
     template <typename S>
@@ -57,9 +61,9 @@ namespace ECS {
     }
 
     template <typename... T>
-    std::tuple<std::shared_ptr<T>...> Manager::getComponents(Entity& entity) {
-        auto& components {entity.getComponents()};
-        return {reinterpret_pointer_cast<T>(
+    std::tuple<std::shared_ptr<T>...> Manager::getComponents(const std::shared_ptr<Entity>& entity) {
+        auto& components {entity->getComponents()};
+        return {std::reinterpret_pointer_cast<T>(
             components.at(Manager::getComponentID<T>())
         )...};
     }

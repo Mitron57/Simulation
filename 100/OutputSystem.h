@@ -5,7 +5,7 @@
 
 namespace Solution {
     struct OutputSystem final : System {
-        std::ofstream file {"work.dat"};
+        std::ofstream file {"work.out"};
 
         ~OutputSystem() override {
             file.close();
@@ -14,7 +14,7 @@ namespace Solution {
         bool onUpdate() override {
             const std::shared_ptr fieldEntity {Filter<Field>::filter()[0]};
             const auto [fieldComponent] {
-                Manager::getComponents<Field>(*fieldEntity)
+                Manager::getComponents<Field>(fieldEntity)
             };
             file << "Current generation: " << currentGeneration << std::endl;
             file << "Field: " << std::endl;

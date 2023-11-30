@@ -13,7 +13,7 @@
 namespace Solution {
     inline void prepareForRun() {
         const auto field = Manager::createEntity();
-        Manager::addComponent<Field>(*field);
+        Manager::addComponent<Field>(field);
         Manager::addSystem<InputSystem>();
         Manager::addSystem<FieldSystem>();
         Manager::addSystem<OutputSystem>();

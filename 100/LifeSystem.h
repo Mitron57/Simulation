@@ -7,7 +7,7 @@ namespace Solution {
     struct LifeSystem final : System {
         bool onUpdate() override {
             const std::shared_ptr fieldEntity {Filter<Field>::filter()[0]};
-            const auto [field] {Manager::getComponents<Field>(*fieldEntity)};
+            const auto [field] {Manager::getComponents<Field>(fieldEntity)};
             std::vector entities {Filter<Health, With<Position>>::filter()};
             for (std::int32_t i {}; i < fieldSize; ++i) {
                 for (std::int32_t j {}; j < fieldSize; ++j) {
@@ -15,7 +15,7 @@ namespace Solution {
                                 entities,
                                 [i, j](std::shared_ptr<Entity>& entity) {
                                     auto [position] {
-                                        Manager::getComponents<Position>(*entity)
+                                        Manager::getComponents<Position>(entity)
                                     };
                                     return position->posX == j &&
                                            position->posY == i;
@@ -25,27 +25,27 @@ namespace Solution {
                         count == 2 || count == 3) {
                         if (field->current[i][j] == 0) {
                             const auto bacteria = Manager::createEntity();
-                            Manager::addComponent<Health>(*bacteria);
-                            Manager::addComponent<Position>(*bacteria);
+                            Manager::addComponent<Health>(bacteria);
+                            Manager::addComponent<Position>(bacteria);
                             const auto [position] {
-                                Manager::getComponents<Position>(*bacteria)
+                                Manager::getComponents<Position>(bacteria)
                             };
                             position->posX = j;
                             position->posY = i;
                             field->future[i][j] = 1;
                         } else {
-                            auto [health] {Manager::getComponents<Health>(**entity)};
+                            auto [health] {Manager::getComponents<Health>(*entity)};
                             if (++health->age == 12) {
                                 field->future[i][j] = 0;
-                                Manager::deleteEntity(**entity);
                                 entities.erase(entity);
+                                Manager::deleteEntity(std::move(*entity));
                             } else {
                                 field->future[i][j] = health->age;
                             }
                         }
                     } else if (entity != entities.end()) {
                         field->future[i][j] = 0;
-                        Manager::deleteEntity(**entity);
+                        Manager::deleteEntity(std::move(*entity));
                         entities.erase(entity);
                     }
                 }

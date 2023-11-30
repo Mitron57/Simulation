@@ -10,10 +10,10 @@ namespace ECS {
             std::map<std::size_t, std::vector<std::shared_ptr<Entity>>>;
         static std::shared_ptr<Entity> createEntity();
 
-        static void deleteEntity(const Entity& entity);
+        static void deleteEntity(std::shared_ptr<Entity> entity);
 
         template <typename C>
-        static void addComponent(Entity& entity);
+        static void addComponent(const std::shared_ptr<Entity>& entity);
 
         template <typename S>
         static void addSystem();
@@ -24,7 +24,7 @@ namespace ECS {
         static std::size_t getComponentID();
         static std::size_t getComponentID(std::size_t hash);
         template <typename... T>
-        static std::tuple<std::shared_ptr<T>...> getComponents(Entity& entity);
+        static std::tuple<std::shared_ptr<T>...> getComponents(const std::shared_ptr<Entity>& entity);
 
         static const std::map<std::size_t, std::shared_ptr<Entity>>& getAllEntities();
         static const Archetypes& getArchetypes();
