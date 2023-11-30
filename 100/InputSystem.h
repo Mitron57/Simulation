@@ -3,7 +3,7 @@
 
 #include <algorithm>
 
-using namespace Engine;
+using namespace ECS;
 
 namespace Solution {
     struct InputSystem final : System {

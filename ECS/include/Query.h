@@ -1,7 +1,7 @@
 #ifndef SIMULATION_QUERY_H
 #define SIMULATION_QUERY_H
 
-namespace Engine {
+namespace ECS {
     template <typename... C>
     struct Query {
         [[nodiscard]] static std::vector<std::size_t> getTypeHash() {

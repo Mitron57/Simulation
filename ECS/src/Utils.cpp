@@ -1,6 +1,6 @@
 #include <vector>
 
-namespace Engine::Utils {
+namespace ECS::Utils {
     void fillMissingBits(std::vector<std::uint8_t>& data,
                          std::size_t component) {
         for (std::size_t i {data.size()}; i < component; ++i) {

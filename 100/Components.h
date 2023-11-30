@@ -3,7 +3,7 @@
 
 #include <bitset>
 
-using namespace Engine;
+using namespace ECS;
 
 namespace Solution {
     static std::uint32_t maxGeneration {}, fieldSize {};

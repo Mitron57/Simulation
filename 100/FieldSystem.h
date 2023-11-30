@@ -1,19 +1,19 @@
 #ifndef SIMULATION_FIELDSYSTEM_H
 #define SIMULATION_FIELDSYSTEM_H
 
-#include <Engine.h>
+#include <ECS.h>
 
 #include <fstream>
 #include <random>
 
-using namespace Engine;
+using namespace ECS;
 
 namespace Solution {
     struct FieldSystem final : System {
         void onAwake() override {
             const std::shared_ptr fieldEntity {Filter<Field>::filter()[0]};
             const auto [fieldComponent] {
-                World::getComponents<Field>(*fieldEntity)
+                Manager::getComponents<Field>(*fieldEntity)
             };
             std::random_device randomDevice {};
             std::mt19937 engine {randomDevice()};
@@ -32,11 +32,11 @@ namespace Solution {
                         workDat << sign << " ";
                         if (sign == bacteria) {
                             fieldComponent->current[i].emplace_back(1);
-                            const auto entity {World::createEntity()};
-                            World::addComponent<Health>(*entity);
-                            World::addComponent<Position>(*entity);
+                            const auto entity {Manager::createEntity()};
+                            Manager::addComponent<Health>(*entity);
+                            Manager::addComponent<Position>(*entity);
                             const auto [position] {
-                                World::getComponents<Position>(*entity)
+                                Manager::getComponents<Position>(*entity)
                             };
                             position->posY = i;
                             position->posX = j;

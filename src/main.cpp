@@ -1,11 +1,11 @@
-#include <Engine.h>
+#include <ECS.h>
 
 #include "../100/Solution.h"
 
-using namespace Engine;
+using namespace ECS;
 
 int main() {
     Solution::prepareForRun();
-    World::run();
+    Manager::run();
     return 0;
 }

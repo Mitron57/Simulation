@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-using namespace Engine;
+using namespace ECS;
 
 namespace Solution {
     template <typename T>

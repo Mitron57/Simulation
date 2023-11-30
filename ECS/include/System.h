@@ -1,7 +1,7 @@
 #ifndef SIMULATION_SYSTEM_H
 #define SIMULATION_SYSTEM_H
 
-namespace Engine {
+namespace ECS {
     struct System {
         System() = default;
         virtual ~System() = default;

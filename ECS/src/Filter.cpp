@@ -1,29 +1,29 @@
 #include <Filter.h>
 
-namespace Engine {
+namespace ECS {
     template <typename C>
     std::vector<std::shared_ptr<Entity>> Filter<C>::filter() {
-        const std::uint64_t typeId {World::getComponentID<C>()};
+        const std::uint64_t typeId {Manager::getComponentID<C>()};
         std::vector<std::shared_ptr<Entity>> requirement {};
-        if (const World::Archetypes& archetypes = World::getArchetypes();
-            archetypes.contains(typeId)) {
+        const Manager::Archetypes& archetypes = Manager::getArchetypes();
+        if (archetypes.contains(typeId)) {
             const auto& archetype {archetypes.at(typeId)};
-            for (const auto& [id, entity] : World::getAllEntities()) {
+            for (const auto& [id, entity] : Manager::getAllEntities()) {
                 auto& entityComponents {entity->getSignature()};
                 if (entityComponents[typeId] != 0 && archetype[archetype.size() - 1]->getID() < id) {
                     requirement.push_back(entity);
                 }
             }
-            World::addArchetype(requirement);
-            return World::getArchetypes().at(typeId);
+            Manager::addArchetype(requirement);
+            return Manager::getArchetypes().at(typeId);
         }
-        for (const auto& [_, entity] : World::getAllEntities()) {
+        for (const auto& [_, entity] : Manager::getAllEntities()) {
             auto& entityComponents {entity->getSignature()};
             if (entityComponents[typeId] != 0) {
                 requirement.push_back(entity);
             }
         }
-        World::addArchetype(requirement);
+        Manager::addArchetype(requirement);
         return requirement;
     }
 
@@ -32,10 +32,10 @@ namespace Engine {
         using namespace Utils;
         std::vector<std::uint8_t> filterBits {};
         std::vector<std::shared_ptr<Entity>> requirement {};
-        fillMissingBits(filterBits, World::getComponentID<C>());
+        fillMissingBits(filterBits, Manager::getComponentID<C>());
         filterBits.push_back(1);
         for (auto hash : With<C2...>::getTypeHash()) {
-            auto componentId = World::getComponentID(hash);
+            auto componentId = Manager::getComponentID(hash);
             if (filterBits.size() <= componentId) {
                 fillMissingBits(filterBits, componentId);
                 filterBits.push_back(1);
@@ -44,10 +44,10 @@ namespace Engine {
             }
         }
         std::uint64_t typesId {bitSequenceToULL(filterBits)};
-        if (auto& archetypes = World::getArchetypes();
-            archetypes.contains(typesId)) {
+        const Manager::Archetypes& archetypes = Manager::getArchetypes();
+        if (archetypes.contains(typesId)) {
             const auto& archetype {archetypes.at(typesId)};
-            for (const auto& [id, entity] : World::getAllEntities()) {
+            for (const auto& [id, entity] : Manager::getAllEntities()) {
                 if (archetype.empty() || archetype[archetype.size() - 1]->getID() < id) {
                     const std::uint64_t signature {
                         bitSequenceToULL(entity->getSignature())
@@ -57,10 +57,10 @@ namespace Engine {
                     }
                 }
             }
-            World::addArchetype(requirement);
-            return World::getArchetypes().at(typesId);
+            Manager::addArchetype(requirement);
+            return Manager::getArchetypes().at(typesId);
         }
-        for (auto& entity : World::getAllEntities()) {
+        for (auto& entity : Manager::getAllEntities()) {
             const std::uint64_t signature {
                 bitSequenceToULL(entity.second->getSignature())
             };
@@ -68,7 +68,7 @@ namespace Engine {
                 requirement.push_back(entity.second);
             }
         }
-        World::addArchetype(requirement);
+        Manager::addArchetype(requirement);
         return requirement;
     }
 
@@ -77,13 +77,13 @@ namespace Engine {
         using namespace Utils;
         std::vector<std::shared_ptr<Entity>> requirement {};
         std::vector<std::uint8_t> filterBits {};
-        auto& archetypes {World::getArchetypes()};
-        fillMissingBits(filterBits, World::getComponentID<C>());
+        const Manager::Archetypes& archetypes = Manager::getArchetypes();
+        fillMissingBits(filterBits, Manager::getComponentID<C>());
         filterBits.push_back(1);
         const std::size_t typeId {bitSequenceToULL(filterBits)};
         if (archetypes.contains(typeId)) {
             const auto& archetype {archetypes.at(typeId)};
-            for (const auto& [id, entity] : World::getAllEntities()) {
+            for (const auto& [id, entity] : Manager::getAllEntities()) {
                 if (archetype.empty() || archetype[archetype.size() - 1]->getID() < id) {
                     const std::uint64_t signature {
                         bitSequenceToULL(entity->getSignature())
@@ -93,10 +93,10 @@ namespace Engine {
                     }
                 }
             }
-            World::addArchetype(requirement);
-            return World::getArchetypes().at(typeId);
+            Manager::addArchetype(requirement);
+            return Manager::getArchetypes().at(typeId);
         }
-        for (auto& entity : World::getAllEntities()) {
+        for (auto& entity : Manager::getAllEntities()) {
             const std::uint64_t signature {
                 bitSequenceToULL(entity.second->getSignature())
             };
@@ -104,7 +104,7 @@ namespace Engine {
                 requirement.push_back(entity.second);
             }
         }
-        World::addArchetype(requirement);
+        Manager::addArchetype(requirement);
         return requirement;
     }
 }  // namespace Engine

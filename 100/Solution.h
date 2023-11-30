@@ -1,7 +1,7 @@
 #ifndef SIMULATION_SOLUTION_H
 #define SIMULATION_SOLUTION_H
 
-#include <Engine.h>
+#include <ECS.h>
 
 #include <Components.h>
 #include <Utils.h>
@@ -12,12 +12,12 @@
 
 namespace Solution {
     inline void prepareForRun() {
-        const auto field = World::createEntity();
-        World::addComponent<Field>(*field);
-        World::addSystem<InputSystem>();
-        World::addSystem<FieldSystem>();
-        World::addSystem<OutputSystem>();
-        World::addSystem<LifeSystem>();
+        const auto field = Manager::createEntity();
+        Manager::addComponent<Field>(*field);
+        Manager::addSystem<InputSystem>();
+        Manager::addSystem<FieldSystem>();
+        Manager::addSystem<OutputSystem>();
+        Manager::addSystem<LifeSystem>();
     }
 }
 

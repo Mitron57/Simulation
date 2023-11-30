@@ -4,8 +4,8 @@
 #include <map>
 #include <unordered_set>
 
-namespace Engine {
-    struct World {
+namespace ECS {
+    struct Manager {
         using Archetypes =
             std::map<std::size_t, std::vector<std::shared_ptr<Entity>>>;
         static std::shared_ptr<Entity> createEntity();

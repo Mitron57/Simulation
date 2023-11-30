@@ -2,10 +2,9 @@
 #define SIMULATION_ENTITY_H
 
 #include <map>
-#include <memory>
 #include <vector>
 
-namespace Engine {
+namespace ECS {
     struct Entity {
         Entity() = default;
         explicit Entity(std::size_t id) : id(id) {}

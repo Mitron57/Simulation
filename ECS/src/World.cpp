@@ -1,20 +1,19 @@
 #include <World.h>
-#include <arm_neon.h>
 
-namespace Engine {
-    std::map<std::size_t, std::shared_ptr<Entity>> World::entities;
-    std::vector<std::unique_ptr<System>> World::systems;
-    std::map<std::size_t, std::size_t> World::componentsID;
-    World::Archetypes World::archetypes;
-    std::size_t World::componentID;
+namespace ECS {
+    std::map<std::size_t, std::shared_ptr<Entity>> Manager::entities;
+    std::vector<std::unique_ptr<System>> Manager::systems;
+    std::map<std::size_t, std::size_t> Manager::componentsID;
+    Manager::Archetypes Manager::archetypes;
+    std::size_t Manager::componentID;
 
-    std::shared_ptr<Entity> World::createEntity() {
+    std::shared_ptr<Entity> Manager::createEntity() {
         static std::size_t entityID {};
         entities.emplace(entityID, std::make_shared<Entity>(entityID));
         return entities.at(entityID++);
     }
 
-    void World::deleteEntity(const Entity& entity) {
+    void Manager::deleteEntity(const Entity& entity) {
         entities.erase(entity.getID());
         std::erase_if(
             archetypes[Utils::bitSequenceToULL(entity.getSignature())],
@@ -22,7 +21,7 @@ namespace Engine {
         );
     }
     template <typename C>
-    void World::addComponent(Entity& entity) {
+    void Manager::addComponent(Entity& entity) {
         if (!componentsID.contains(typeid(C).hash_code())) {
             componentsID[typeid(C).hash_code()] = componentID++;
         }
@@ -31,11 +30,11 @@ namespace Engine {
     }
 
     template <typename S>
-    void World::addSystem() {
+    void Manager::addSystem() {
         systems.push_back(std::make_unique<S>());
     }
 
-    void World::run() {
+    void Manager::run() {
         for (const auto& system : systems) {
             system->onAwake();
         }
@@ -49,32 +48,32 @@ namespace Engine {
     }
 
     template <typename C>
-    std::size_t World::getComponentID() {
+    std::size_t Manager::getComponentID() {
         return componentsID[typeid(C).hash_code()];
     }
 
-    std::size_t World::getComponentID(std::size_t hash) {
+    std::size_t Manager::getComponentID(std::size_t hash) {
         return componentsID[hash];
     }
 
     template <typename... T>
-    std::tuple<std::shared_ptr<T>...> World::getComponents(Entity& entity) {
+    std::tuple<std::shared_ptr<T>...> Manager::getComponents(Entity& entity) {
         auto& components {entity.getComponents()};
         return {reinterpret_pointer_cast<T>(
-            components.at(World::getComponentID<T>())
+            components.at(Manager::getComponentID<T>())
         )...};
     }
 
-    const std::map<std::size_t, std::shared_ptr<Entity>>& World::getAllEntities(
+    const std::map<std::size_t, std::shared_ptr<Entity>>& Manager::getAllEntities(
     ) {
         return entities;
     }
 
-    const World::Archetypes& World::getArchetypes() {
+    const Manager::Archetypes& Manager::getArchetypes() {
         return archetypes;
     }
 
-    void World::addArchetype(
+    void Manager::addArchetype(
         const std::vector<std::shared_ptr<Entity>>& archetype
     ) {
         if (!archetype.empty()) {

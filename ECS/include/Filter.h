@@ -1,11 +1,9 @@
 #ifndef SIMULATION_FILTER_H
 #define SIMULATION_FILTER_H
 
-namespace Engine {
+namespace ECS {
     template <typename...>
-    struct Filter {
-        static std::vector<std::shared_ptr<Entity>> filter();
-    };
+    struct Filter;
 
     template <typename C>
     struct Filter<C> {

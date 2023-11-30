@@ -1,7 +1,7 @@
 #ifndef SIMULATION_COMPONENT_H
 #define SIMULATION_COMPONENT_H
 
-namespace Engine {
+namespace ECS {
     struct Component {
         Component() = default;
         Component(const Component& component) = default;

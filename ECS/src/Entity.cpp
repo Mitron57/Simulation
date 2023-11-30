@@ -1,6 +1,6 @@
 #include <Entity.h>
 
-namespace Engine {
+namespace ECS {
     void Entity::setSignature(std::size_t componentID) {
         if (std::size_t size = signature.size(); componentID >= size) {
             for (std::size_t i {size}; i < componentID; ++i) {

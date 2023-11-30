@@ -7,8 +7,8 @@ set(SIMULATION_100 true)
 #set(SIMULATION_151 true)
 
 add_library(${PROJECT_NAME}.Library INTERFACE)
-target_include_directories(${PROJECT_NAME}.Library INTERFACE simulation/engine/include)
-target_include_directories(${PROJECT_NAME}.Library INTERFACE simulation/engine/src)
+target_include_directories(${PROJECT_NAME}.Library INTERFACE ECS/include)
+target_include_directories(${PROJECT_NAME}.Library INTERFACE ECS/src)
 
 if (DEFINED SIMULATION_100)
     target_include_directories(${PROJECT_NAME}.Library INTERFACE "100")
