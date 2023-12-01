@@ -1,8 +1,6 @@
 #ifndef SIMULATION_COMPONENTS_H
 #define SIMULATION_COMPONENTS_H
 
-#include <bitset>
-
 using namespace ECS;
 
 namespace Solution {

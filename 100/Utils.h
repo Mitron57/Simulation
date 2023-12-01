@@ -6,9 +6,6 @@
 using namespace ECS;
 
 namespace Solution {
-    template <typename T>
-    concept Output = requires(T obj, std::ostream& stream) { stream << obj; };
-
     template <typename F>
     std::size_t countNear(const F& field, std::int32_t x, std::int32_t y) {
         std::size_t count {};

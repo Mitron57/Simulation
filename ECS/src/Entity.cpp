@@ -19,6 +19,7 @@ namespace ECS {
     template <typename C>
     void Entity::setComponent(std::size_t componentID) {
         components[componentID] = std::make_shared<C>();
+        this->setSignature(componentID);
     }
 
     const std::map<std::size_t, std::shared_ptr<Component>>& Entity::getComponents() const {

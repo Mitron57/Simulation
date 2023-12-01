@@ -1,4 +1,4 @@
-#include <World.h>
+#include <Manager.h>
 
 namespace ECS {
     std::map<std::size_t, std::shared_ptr<Entity>> Manager::entities;
@@ -14,13 +14,13 @@ namespace ECS {
     }
 
     void Manager::deleteEntity(std::shared_ptr<Entity> entity) {
-        if (entity) {
-            entities.erase(entity->getID());
-            std::erase_if(
-                archetypes[Utils::bitSequenceToULL(entity->getSignature())],
-                [id = entity->getID()](auto entity) { return id == entity->getID(); }
-            );
-        }
+        entities.erase(entity->getID());
+        std::erase_if(
+            archetypes[Utils::bitSequenceToULL(entity->getSignature())],
+            [id = entity->getID()](auto entity) {
+                return id == entity->getID();
+            }
+        );
     }
     template <typename C>
     void Manager::addComponent(const std::shared_ptr<Entity>& entity) {
@@ -29,7 +29,6 @@ namespace ECS {
                 componentsID[typeid(C).hash_code()] = componentID++;
             }
             entity->setComponent<C>(componentsID[typeid(C).hash_code()]);
-            entity->setSignature(componentsID[typeid(C).hash_code()]);
         }
     }
 
@@ -61,15 +60,17 @@ namespace ECS {
     }
 
     template <typename... T>
-    std::tuple<std::shared_ptr<T>...> Manager::getComponents(const std::shared_ptr<Entity>& entity) {
+    std::tuple<std::shared_ptr<T>...> Manager::getComponents(
+        const std::shared_ptr<Entity>& entity
+    ) {
         auto& components {entity->getComponents()};
         return {std::reinterpret_pointer_cast<T>(
             components.at(Manager::getComponentID<T>())
         )...};
     }
 
-    const std::map<std::size_t, std::shared_ptr<Entity>>& Manager::getAllEntities(
-    ) {
+    const std::map<std::size_t, std::shared_ptr<Entity>>&
+    Manager::getAllEntities() {
         return entities;
     }
 
@@ -92,7 +93,12 @@ namespace ECS {
                 return;
             }
             archetypes[signature] = archetype;
+            for (auto& arch : archetypes) {
+                std::erase_if(arch.second, [](const auto& entity) {
+                    return !entity;
+                });
+            }
         }
     }
 
-}  // namespace Engine
+}  // namespace ECS

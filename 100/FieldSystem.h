@@ -1,8 +1,6 @@
 #ifndef SIMULATION_FIELDSYSTEM_H
 #define SIMULATION_FIELDSYSTEM_H
 
-#include <ECS.h>
-
 #include <fstream>
 #include <random>
 

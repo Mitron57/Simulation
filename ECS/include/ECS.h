@@ -5,7 +5,7 @@
 #include <Component.h>
 #include <Entity.cpp>
 #include <System.h>
-#include <World.cpp>
+#include <Manager.cpp>
 #include <Query.h>
 #include <Filter.cpp>
 

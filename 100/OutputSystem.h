@@ -22,8 +22,14 @@ namespace Solution {
             std::cout << "Field: " << std::endl;
             for (const auto& line : fieldComponent->current) {
                 for (const auto age : line) {
-                    file << std::setw(3) << age;
-                    std::cout << std::setw(3) << age;
+                    std::string elem {};
+                    if (age == 0) {
+                        elem = ".";
+                    } else {
+                        elem = std::to_string(age);
+                    }
+                    file << std::setw(3) << elem;
+                    std::cout << std::setw(3) << elem;
                 }
                 file << std::endl;
                 std::cout << std::endl;

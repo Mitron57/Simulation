@@ -9,21 +9,25 @@ namespace Solution {
             const std::shared_ptr fieldEntity {Filter<Field>::filter()[0]};
             const auto [field] {Manager::getComponents<Field>(fieldEntity)};
             std::vector entities {Filter<Health, With<Position>>::filter()};
+            std::vector<std::shared_ptr<Entity>> entityToDelete {};
             for (std::int32_t i {}; i < fieldSize; ++i) {
                 for (std::int32_t j {}; j < fieldSize; ++j) {
                     auto entity {std::ranges::find_if(
-                                entities,
-                                [i, j](std::shared_ptr<Entity>& entity) {
-                                    auto [position] {
-                                        Manager::getComponents<Position>(entity)
-                                    };
-                                    return position->posX == j &&
-                                           position->posY == i;
-                                }
-                            )};
-                    if (const auto count {countNear(field->current, j, i)};
-                        count == 2 || count == 3) {
-                        if (field->current[i][j] == 0) {
+                        entities,
+                        [i, j](std::shared_ptr<Entity>& entity) {
+                            if (entity) {
+                                auto [position] {
+                                    Manager::getComponents<Position>(entity)
+                                };
+                                return position->posX == j &&
+                                       position->posY == i;
+                            }
+                            return false;
+                        }
+                    )};
+                    const auto count {countNear(field->current, j, i)};
+                    if (count == 2 || count == 3) {
+                        if (field->current[i][j] == 0 && count == 3) {
                             const auto bacteria = Manager::createEntity();
                             Manager::addComponent<Health>(bacteria);
                             Manager::addComponent<Position>(bacteria);
@@ -33,28 +37,30 @@ namespace Solution {
                             position->posX = j;
                             position->posY = i;
                             field->future[i][j] = 1;
-                        } else {
-                            auto [health] {Manager::getComponents<Health>(*entity)};
-                            if (++health->age == 12) {
+                        } else if (field->current[i][j] != 0) {
+                            auto [health] {
+                                Manager::getComponents<Health>(*entity)
+                            };
+                            if (++health->age == 13) {
                                 field->future[i][j] = 0;
-                                entities.erase(entity);
-                                Manager::deleteEntity(std::move(*entity));
+                                entityToDelete.push_back(*entity);
                             } else {
                                 field->future[i][j] = health->age;
                             }
                         }
                     } else if (entity != entities.end()) {
                         field->future[i][j] = 0;
-                        Manager::deleteEntity(std::move(*entity));
-                        entities.erase(entity);
+                        entityToDelete.push_back(*entity);
                     }
                 }
             }
+            for (auto& entity : entityToDelete) {
+                Manager::deleteEntity(std::move(entity));
+            }
             field->current = std::move(field->future);
-            field->future.clear();
             for (std::uint32_t i {}; i < fieldSize; ++i) {
                 field->future.emplace_back();
-                for (std::uint32_t j {}; j< fieldSize; ++j) {
+                for (std::uint32_t j {}; j < fieldSize; ++j) {
                     field->future[i].emplace_back();
                 }
             }

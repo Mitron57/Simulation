@@ -6,10 +6,8 @@
 
 namespace ECS {
     struct Entity {
-        Entity() = default;
         explicit Entity(std::size_t id) : id(id) {}
 
-        void setSignature(std::size_t componentID);
         [[nodiscard]] const std::vector<std::uint8_t>& getSignature() const;
 
         template <typename C>
@@ -19,6 +17,7 @@ namespace ECS {
         [[nodiscard]] std::size_t getID() const;
 
     private:
+        void setSignature(std::size_t componentID);
         std::size_t id {};
         std::vector<std::uint8_t> signature {};
         std::map<std::size_t, std::shared_ptr<Component>> components {};
