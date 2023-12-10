@@ -6,10 +6,8 @@ namespace ECS {
         System() = default;
         virtual ~System() = default;
 
-        virtual void onAwake() {}
-        virtual bool onUpdate() {
-            return true;
-        };
+        virtual void onAwake() = 0;
+        virtual bool onUpdate() = 0;
     };
 }
 

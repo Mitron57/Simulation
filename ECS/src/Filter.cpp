@@ -5,21 +5,23 @@ namespace ECS {
     std::vector<std::shared_ptr<Entity>> Filter<C>::filter() {
         const std::uint64_t typeId {Manager::getComponentID<C>()};
         std::vector<std::shared_ptr<Entity>> requirement {};
-        const Manager::Archetypes& archetypes = Manager::getArchetypes();
+        const Manager::Archetypes& archetypes {Manager::getArchetypes()};
         if (archetypes.contains(typeId)) {
             const auto& archetype {archetypes.at(typeId)};
             for (const auto& [id, entity] : Manager::getAllEntities()) {
                 auto& entityComponents {entity->getSignature()};
-                if (entityComponents[typeId] != 0 && archetype[archetype.size() - 1]->getID() < id) {
+                if (entityComponents[typeId] != 0 &&
+                    archetype[archetype.size() - 1]->getID() < id) {
                     requirement.push_back(entity);
                 }
             }
             Manager::addArchetype(requirement);
-            return Manager::getArchetypes().at(typeId);
+            return archetypes.at(typeId);
         }
         for (const auto& [_, entity] : Manager::getAllEntities()) {
             auto& entityComponents {entity->getSignature()};
-            if (entityComponents[typeId] != 0) {
+            if (entityComponents.size() > typeId &&
+                entityComponents.at(typeId) != 0) {
                 requirement.push_back(entity);
             }
         }
@@ -48,7 +50,8 @@ namespace ECS {
         if (archetypes.contains(typesId)) {
             const auto& archetype {archetypes.at(typesId)};
             for (const auto& [id, entity] : Manager::getAllEntities()) {
-                if (archetype.empty() || archetype[archetype.size() - 1]->getID() < id) {
+                if (archetype.empty() ||
+                    archetype[archetype.size() - 1]->getID() < id) {
                     const std::uint64_t signature {
                         bitSequenceToULL(entity->getSignature())
                     };
@@ -84,7 +87,8 @@ namespace ECS {
         if (archetypes.contains(typeId)) {
             const auto& archetype {archetypes.at(typeId)};
             for (const auto& [id, entity] : Manager::getAllEntities()) {
-                if (archetype.empty() || archetype[archetype.size() - 1]->getID() < id) {
+                if (archetype.empty() ||
+                    archetype[archetype.size() - 1]->getID() < id) {
                     const std::uint64_t signature {
                         bitSequenceToULL(entity->getSignature())
                     };
@@ -107,4 +111,4 @@ namespace ECS {
         Manager::addArchetype(requirement);
         return requirement;
     }
-}  // namespace Engine
+}  // namespace ECS
