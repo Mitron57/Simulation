@@ -40,7 +40,7 @@ namespace Solution {
                             const std::uint32_t distance =
                                 std::pow(position->y - y, 2) +
                                 std::pow(position->x - x, 2);
-                            if (distance < minDistance && distance != 2) {
+                            if (distance < minDistance && distance > 2) {
                                 minDistance = distance;
                                 coords.first = x;
                                 coords.second = y;

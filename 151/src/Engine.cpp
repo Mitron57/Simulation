@@ -171,12 +171,13 @@ namespace Solution {
     }
 
     void Engine::signalHandler(std::int32_t) {
+        std::cout << std::endl;
         endGame();
+        std::cout << std::endl;
         std::exit(0);
     }
 
     void Engine::endGame() {
-        std::cout << std::endl;
         std::cout << "============SIMULATION STATISTICS============"
                   << std::endl;
         std::cout << "\tCount of dead herbivors: " << deadHerbivors
@@ -192,7 +193,7 @@ namespace Solution {
         const std::int32_t rows = window.ws_row;
 #endif
         for (std::int32_t i {};
-             i < std::abs(7 - rows); ++i) {
+             i < std::abs(8 - rows); ++i) {
             std::cout << std::endl;
         }
     }
