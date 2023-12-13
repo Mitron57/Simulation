@@ -1,5 +1,5 @@
 #include <SimulationParameters.h>
-#include <signal.h>
+
 namespace Solution {
     using namespace SimulationParameters;
 
@@ -8,7 +8,7 @@ namespace Solution {
         std::mt19937 engine {device()};
         std::uniform_int_distribution<std::uint32_t> random(0, fieldSize - 1);
         for (std::uint32_t i {}; i < countOfHerbivors; ++i) {
-            std::shared_ptr herbivor = Manager::createEntity();
+            std::shared_ptr herbivor {Manager::createEntity()};
             Manager::addComponent<Herbivor>(herbivor);
             Manager::addComponent<Health>(herbivor);
             Manager::addComponent<Position>(herbivor);
@@ -35,75 +35,77 @@ namespace Solution {
                 position->x = random(engine);
                 position->y = random(engine);
             }
-            field[position->y][position->x] = marker->sign;
+            field[position->y][position->x] = Predator::sign;
         }
-    }
-
-    // TODO: generate some grass, not only one
-    void LifeSystem::generateGrass() {
-        std::random_device device {};
-        std::mt19937 engine {device()};
-        std::uniform_int_distribution random {1, 100};
-        if (random(engine) / 100.0 <= grassRegeneration) {
-            std::uniform_int_distribution<std::uint32_t> randomPosition(
-                0, fieldSize - 1
-            );
-            std::uint32_t x {randomPosition(engine)},
-                y {randomPosition(engine)};
+        for (std::uint32_t i {}; i < countOfGrass; ++i) {
+            std::uint32_t y {random(engine)}, x {random(engine)};
             while (field[y][x] != placeholder) {
-                x = randomPosition(engine);
-                y = randomPosition(engine);
+                y = random(engine);
+                x = random(engine);
             }
             field[y][x] = '#';
         }
     }
 
+    // TODO: generate some grass, not only one
+    void LifeSystem::generateGrass() {
+        const std::int32_t power =
+            -1 * std::round(std::log(grassRegeneration) / std::log(10));
+        const std::double_t base = std::pow(10, power);
+        std::random_device device {};
+        std::mt19937 engine {device()};
+        std::uniform_int_distribution<std::int32_t> random(1, base);
+        for (std::uint32_t i {}; i < countOfGrass; ++i) {
+            if (random(engine) / base <= grassRegeneration) {
+                std::uniform_int_distribution<std::uint32_t> randomPosition(
+                    0, fieldSize - 1
+                );
+                std::uint32_t x {randomPosition(engine)},
+                    y {randomPosition(engine)};
+                while (field[y][x] != placeholder) {
+                    field[y][x] = '#';
+                }
+            }
+        }
+    }
+
     template <typename T>
     void LifeSystem::bornChild(std::int32_t posX, std::int32_t posY) {
-        const auto child = Manager::createEntity();
-        Manager::addComponent<T>(child);
-        Manager::addComponent<Position>(child);
-        Manager::addComponent<Health>(child);
-        const auto [position, health] {
-            Manager::getComponents<Position, Health>(child)
-        };
-        for (std::int32_t y {posY - 1}; y < posY + 1; ++y) {
-            for (std::int32_t x {posX - 1}; x < posX + 1; ++x) {
+        for (std::int32_t y {posY - 2}; y < posY + 2; ++y) {
+            for (std::int32_t x {posX - 2}; x < posX + 2; ++x) {
                 if (0 <= y && y < fieldSize && 0 <= x && x < fieldSize) {
                     if (field[y][x] == placeholder) {
+                        const auto child = Manager::createEntity();
+                        Manager::addComponent<T>(child);
+                        Manager::addComponent<Position>(child);
+                        Manager::addComponent<Health>(child);
+                        const auto [position, health] {
+                            Manager::getComponents<Position, Health>(child)
+                        };
                         position->y = y;
                         position->x = x;
-                        field[position->y][position->x] = T::sign;
+                        field[y][x] = T::sign;
                         health->birthday = ticks % 12 + 1;
                         return;
                     }
                 }
             }
         }
-        std::random_device device {};
-        std::mt19937 engine {device()};
-        std::uniform_int_distribution<std::int32_t> randomPosition(
-            0, fieldSize - 1
-        );
-        position->x = randomPosition(engine);
-        position->y = randomPosition(engine);
-        while (field[position->y][position->x] != placeholder) {
-            position->y = randomPosition(engine);
-            position->x = randomPosition(engine);
-        }
-        field[position->y][position->x] = T::sign;
     }
 
     bool LifeSystem::calculateChance(
         std::double_t chance, std::double_t coeff = 1
     ) {
+        const std::int32_t power =
+            -1 * std::round(std::log(chance) / std::log(10));
+        const std::double_t base = std::pow(10, power);
         std::random_device device {};
         std::mt19937 engine {device()};
-        std::uniform_int_distribution random {1, 100};
-        return coeff * random(engine) / 100.0 <= chance;
+        std::uniform_int_distribution<std::uint32_t> random(1, base);
+        return coeff * random(engine) / base <= chance;
     }
 
-    std::tuple<bool, std::int32_t, std::int32_t> isNear(
+    std::tuple<bool, std::int32_t, std::int32_t> LifeSystem::isNear(
         char object, const std::shared_ptr<Position>& position
     ) {
         for (std::int32_t y {position->y - 1}; y < position->y + 1; ++y) {
@@ -123,11 +125,13 @@ namespace Solution {
         const std::vector herbivors {Filter<Herbivor>::filter()};
         const std::vector predators {Filter<Predator>::filter()};
         countOfHerbivors = herbivors.size();
-        countOfPredators = predators.size();
-        // if (calculateChance(cataclysmChance)) {
-        //     std::cout << "Cataclysm occurred!" << std::endl;
-        //     return false;
-        // }
+        if (ticks % 12 == 1) {
+            countOfPredators = predators.size();
+        }
+        if (calculateChance(cataclysmChance)) {
+            std::cout << "Cataclysm occurred!" << std::endl;
+            return false;
+        }
         if (countOfHerbivors == 0 || countOfPredators == 0) {
             std::cout << "END! Species extinction!" << std::endl;
             return false;
@@ -155,15 +159,17 @@ namespace Solution {
             if (health->age <= maxReproductiveAge &&
                 health->age >= minReproductiveAge &&
                 std::get<0>(isNear(Herbivor::sign, position)) &&
-                calculateChance(birthChance, 1.0 / health->age) &&
-                health->satiety > 0) {
+                calculateChance(birthChance, health->age) &&
+                health->satiety > 0)
+            {
                 bornChild<Herbivor>(position->x, position->y);
             }
             if (ticks % 12 + 1 == health->birthday) {
                 health->age++;
             }
             if (health->age > maxAge &&
-                calculateChance(deathChance, 1.0 / health->age)) {
+                calculateChance(deathChance, 1.0 / health->age))
+            {
                 field[position->y][position->x] = placeholder;
                 entityToDelete.push_back(herbivor);
                 deadHerbivors++;
@@ -173,29 +179,28 @@ namespace Solution {
             const auto [position, health] {
                 Manager::getComponents<Position, Health>(predator)
             };
-            const auto [foodIsNear, x, y] {isNear(Herbivor::sign, position)};
+            const auto [foodIsNear, x, y] {
+                isNear(Herbivor::sign, position)
+            };
             if (foodIsNear) {
                 health->satiety += 10;
-                const auto herbivor {*std::ranges::find_if(
+                const auto herbivor {
+                    *std::ranges::find_if(
                     herbivors,
-                    [x, y](auto& entity) {
+                    [x, y](const auto& entity) {
                         const auto [position] {
                             Manager::getComponents<Position>(entity)
                         };
                         return position->x == x && position->y == y;
                     }
                 )};
-                const auto [herbPosition] {
-                    Manager::getComponents<Position>(herbivor)
-                };
                 field[x][y] = placeholder;
-                field[herbPosition->y][herbPosition->x] = placeholder;
                 entityToDelete.push_back(herbivor);
                 deadHerbivors++;
             } else if (health->satiety > 0) {
                 health->satiety -= 10;
             }
-            if (health->satiety == 0 &&
+            if (ticks % 12 == 1 && health->satiety == 0 &&
                 calculateChance(deathChance, 1.0 / health->age)) {
                 deadPredators++;
                 field[position->y][position->x] = placeholder;
@@ -204,7 +209,7 @@ namespace Solution {
             if (health->age <= maxReproductiveAge &&
                 health->age >= minReproductiveAge &&
                 std::get<0>(isNear(Predator::sign, position)) &&
-                calculateChance(birthChance, 1.0 / health->age) &&
+                calculateChance(birthChance, 1.0 / (10*health->age)) &&
                 health->satiety > 0) {
                 bornChild<Predator>(position->x, position->y);
             }
@@ -219,7 +224,9 @@ namespace Solution {
             }
         }
         for (auto& entity : entityToDelete) {
-            Manager::deleteEntity(std::move(entity));
+            if (entity) {
+                Manager::deleteEntity(std::move(entity));
+            }
         }
         return ticks < years * 12;
     }

@@ -15,12 +15,19 @@ namespace ECS {
 
     void Manager::deleteEntity(std::shared_ptr<Entity> entity) {
         entities.erase(entity->getID());
-        std::erase_if(
-            archetypes[Utils::bitSequenceToULL(entity->getSignature())],
-            [id = entity->getID()](auto entity) {
-                return id == entity->getID();
+        auto first {
+            archetypes[Utils::bitSequenceToULL(entity->getSignature())].begin()
+        };
+        const auto end {
+            archetypes[Utils::bitSequenceToULL(entity->getSignature())].end()
+        };
+        for (; first != end; ++first) {
+            if ((*first)->getID() == entity->getID()) {
+                archetypes[Utils::bitSequenceToULL(entity->getSignature())]
+                    .erase(first);
+                break;
             }
-        );
+        }
     }
     template <typename C>
     void Manager::addComponent(const std::shared_ptr<Entity>& entity) {
@@ -86,18 +93,17 @@ namespace ECS {
                 Utils::bitSequenceToULL(archetype[0]->getSignature())
             };
             if (archetypes.contains(signature)) {
-                archetypes[signature].insert(
-                    archetypes[signature].end(), archetype.begin(),
-                    archetype.end()
-                );
+                for (auto& entity : archetype) {
+                    auto iter {std::ranges::find_if(archetypes[signature], [id = entity->getID()] (const auto& unique) {
+                        return unique->getID() == id;
+                    })};
+                    if (iter == archetypes[signature].end()) {
+                        archetypes[signature].push_back(entity);
+                    }
+                }
                 return;
             }
             archetypes[signature] = archetype;
-            for (auto& arch : archetypes) {
-                std::erase_if(arch.second, [](const auto& entity) {
-                    return !entity;
-                });
-            }
         }
     }
 

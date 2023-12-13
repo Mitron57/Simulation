@@ -6,12 +6,11 @@ namespace ECS {
         const std::uint64_t typeId {Manager::getComponentID<C>()};
         std::vector<std::shared_ptr<Entity>> requirement {};
         const Manager::Archetypes& archetypes {Manager::getArchetypes()};
-        if (archetypes.contains(typeId)) {
+        if (archetypes.contains(typeId) && !archetypes.at(typeId).empty()) {
             const auto& archetype {archetypes.at(typeId)};
             for (const auto& [id, entity] : Manager::getAllEntities()) {
                 auto& entityComponents {entity->getSignature()};
-                if (entityComponents[typeId] != 0 &&
-                    archetype[archetype.size() - 1]->getID() < id) {
+                if (entityComponents[typeId] != 0) {
                     requirement.push_back(entity);
                 }
             }

@@ -2,7 +2,6 @@ namespace Solution {
     using namespace SimulationParameters;
 
 #ifdef WIN32
-    CONSOLE_SCREEN_BUFFER_INFO Engine::csbi;
     std::int32_t Engine::rows;
 #else
     winsize Engine::window {};
@@ -10,20 +9,8 @@ namespace Solution {
 
     Engine::Engine() {
         readConfig();
-        std::random_device device {};
-        std::mt19937 engine {device()};
-        std::uniform_int_distribution<std::uint32_t> random(
-            0, static_cast<std::int32_t>(fieldSize) - 1
-        );
-        for (std::uint32_t i {}; i < countOfGrass; ++i) {
-            std::uint32_t y {random(engine)}, x {random(engine)};
-            while (field[y][x] != placeholder) {
-                y = random(engine);
-                x = random(engine);
-            }
-            field[y][x] = '#';
-        }
 #ifdef WIN32
+        CONSOLE_SCREEN_BUFFER_INFO csbi;
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 #else
@@ -33,6 +20,7 @@ namespace Solution {
     }
 
     void Engine::run() {
+        printConfig();
         life.onAwake();
         while (true) {
             ticks++;
@@ -42,19 +30,20 @@ namespace Solution {
                 break;
             }
             const std::string placeholder(fieldSize * 2, '-');
-            std::cout << placeholder << std::endl;
+            std::cout << " " << placeholder << std::endl;
             for (auto& line : field) {
+                std::cout << "| ";
                 for (const char elem : line) {
                     std::cout << elem << " ";
                 }
                 std::cout << "|" << std::endl;
             }
-            std::cout << placeholder << std::endl;
+            std::cout << " " << placeholder << std::endl;
 #ifndef WIN32
             const std::int32_t rows = window.ws_row;
 #endif
             for (std::int32_t i {};
-                 i < std::abs(static_cast<std::int32_t>(fieldSize + 2) - rows);
+                 i < std::abs(static_cast<std::int32_t>(fieldSize + 3) - rows);
                  ++i) {
                 std::cout << std::endl;
             }
@@ -73,7 +62,7 @@ namespace Solution {
         countOfHerbivors = 20;
         countOfGrass = 200;
         grassRegeneration = 0.35;
-        cataclysmChance = 0.01;
+        cataclysmChance = 0.001;
         deathChance = 0.01;
         birthChance = 0.5;
         years = 50;
@@ -83,7 +72,13 @@ namespace Solution {
                 std::string field {};
                 std::getline(config, field);
                 if (!field.empty()) {
-                    const std::size_t delim {field.find(':')};
+                    const std::size_t delim {field.find(": ")};
+                    if (delim == std::string::npos) {
+                        std::cerr << "Unexpected field in config, line "
+                                      << i << " ignored: \"" << field << "\""
+                                      << std::endl;
+                        continue;
+                    }
                     const std::string& param {field.substr(0, delim)};
                     const std::string& value {
                         field.substr(delim + 2, std::string::npos)
@@ -109,7 +104,7 @@ namespace Solution {
                             years = std::stoi(value);
                         } else if (param == "GrassRegeneration") {
                             const std::uint32_t regen = std::stoi(value);
-                            if (regen >= 100) {
+                            if (regen > 100) {
                                 std::cerr << "Incorrect value in line " << i
                                           << " ignored: \"" << field << "\", "
                                           << value << " must be less than 100."
@@ -119,7 +114,7 @@ namespace Solution {
                             }
                         } else if (param == "Cataclysm") {
                             const std::uint32_t percent = std::stoi(value);
-                            if (percent >= 100) {
+                            if (percent > 100) {
                                 std::cerr << "Incorrect value in line " << i
                                           << " ignored: \"" << field << "\", "
                                           << value << " must be less than 100."
@@ -129,7 +124,7 @@ namespace Solution {
                             }
                         } else if (param == "BirthChance") {
                             const std::uint32_t percent = std::stoi(value);
-                            if (percent >= 100) {
+                            if (percent > 100) {
                                 std::cerr << "Incorrect value in line " << i
                                           << " ignored: \"" << field << "\", "
                                           << value << " must be less than 100."
@@ -139,7 +134,7 @@ namespace Solution {
                             }
                         } else if (param == "DeathChance") {
                             const std::uint32_t percent = std::stoi(value);
-                            if (percent >= 100) {
+                            if (percent > 100) {
                                 std::cerr << "Incorrect value in line " << i
                                           << " ignored: \"" << field << "\", "
                                           << value << " must be less than 100."
@@ -173,9 +168,39 @@ namespace Solution {
     void Engine::signalHandler(std::int32_t) {
         std::cout << std::endl;
         endGame();
-        std::cout << std::endl;
         std::exit(0);
     }
+
+    void Engine::printConfig() {
+        std::cout << "============Config============" << std::endl;
+        std::cout << "\tFieldSize: " << fieldSize << std::endl;
+        std::cout << "\tMaxAge: " << maxAge << std::endl;
+        std::cout << "\tMinReproductiveAge: " << minReproductiveAge << std::endl;
+        std::cout << "\tMaxReproductiveAge: " << maxReproductiveAge << std::endl;
+        std::cout << "\tCountOfHerbivors: " << countOfHerbivors << std::endl;
+        std::cout << "\tCountOfPredators: " << countOfPredators << std::endl;
+        std::cout << "\tCountOfGrass: " << countOfGrass << std::endl;
+        std::cout << "\tYears: " << years << std::endl;
+        std::cout << "\tGrassRegeneration: " << grassRegeneration << std::endl;
+        std::cout << "\tCataclysm: " << cataclysmChance << std::endl;
+        std::cout << "\tBirthChance: " << birthChance << std::endl;
+        std::cout << "\tDeathChance: " << deathChance << std::endl;
+#ifndef WIN32
+        const std::int32_t rows {window.ws_row};
+#endif
+        for (std::int32_t i {}; i < std::abs(rows - 17); ++i) {
+            std::cout << std::endl;
+        }
+        std::cout << "Start simulation?" << std::endl;
+        std::cout << "Press any button to continue or Q to quit..." << std::endl;
+        std::string choice {};
+        std::getline(std::cin, choice);
+        if (choice == "Q" || choice == "q") {
+            system("clear");
+            std::exit(0);
+        }
+    }
+
 
     void Engine::endGame() {
         std::cout << "============SIMULATION STATISTICS============"
@@ -190,10 +215,19 @@ namespace Solution {
                   << std::endl;
         std::cout << "\tMonths:" << ticks << std::endl;
 #ifndef WIN32
-        const std::int32_t rows = window.ws_row;
+        const std::int32_t rows {window.ws_row};
 #endif
-        for (std::int32_t i {};
-             i < std::abs(8 - rows); ++i) {
+        const std::string placeholder(fieldSize * 2, '-');
+        std::cout << " " << placeholder << std::endl;
+        for (auto& line : field) {
+            std::cout << "| ";
+            for (const char elem : line) {
+                std::cout << elem << " ";
+            }
+            std::cout << "|" << std::endl;
+        }
+        std::cout << " " << placeholder << std::endl;
+        for (std::int32_t i {}; i < std::abs(rows - static_cast<std::int32_t>(fieldSize + 10)); ++i) {
             std::cout << std::endl;
         }
     }

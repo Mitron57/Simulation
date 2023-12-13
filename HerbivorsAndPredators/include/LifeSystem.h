@@ -13,6 +13,10 @@ namespace Solution {
 
         template <typename T>
         static void bornChild(std::int32_t posX, std::int32_t posY);
+
+        static std::tuple<bool, std::int32_t, std::int32_t> isNear(
+            char object, const std::shared_ptr<Position>& position
+        );
     };
-}
-#endif //LIFESYSTEM_H
+}  // namespace Solution
+#endif  // LIFESYSTEM_H

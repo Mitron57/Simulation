@@ -18,35 +18,45 @@ namespace Solution {
             );
             position->x = randomX(engine);
             position->y = randomY(engine);
-            if (field[position->y][position->x] == placeholder) {
-                field[y][x] = placeholder;
-                field[position->y][position->x] = Herbivor::sign;
-            } else {
+            if (field[position->y][position->x] == Herbivor::sign ||
+                field[position->y][position->x] == Predator::sign) {
                 position->x = x;
                 position->y = y;
             }
+            field[y][x] = placeholder;
+            field[position->y][position->x] = Herbivor::sign;
         }
         for (auto& predator : predators) {
             const auto [position] {Manager::getComponents<Position>(predator)};
             const auto x = position->x, y = position->y;
+            field[y][x] = placeholder;
             std::uint32_t minDistance {std::numeric_limits<std::uint32_t>::max()
             };
             std::pair coords {0, 0};
-            for (std::int32_t y {position->y - 3}; y < position->y + 3; ++y) {
-                for (std::int32_t x {position->x - 3}; x < position->x + 3;
-                     ++x) {
-                    if (0 <= y && y < fieldSize && 0 <= x && x < fieldSize) {
-                        if (field[y][x] == Herbivor::sign) {
+            bool broke = false;
+            for (std::int32_t posY {position->y - 3}; posY < position->y + 3; ++posY) {
+                for (std::int32_t posX {position->x - 3}; posX < position->x + 3;
+                     ++posX) {
+                    if (0 <= posY && posY < fieldSize && 0 <= posX && posX < fieldSize) {
+                        if (field[posY][posX] == Herbivor::sign) {
                             const std::uint32_t distance =
-                                std::pow(position->y - y, 2) +
-                                std::pow(position->x - x, 2);
+                                std::pow(position->y - posY, 2) +
+                                std::pow(position->x - posX, 2);
+                            if (distance <= 2) {
+                                coords = {posX, posY};
+                                broke = true;
+                                break;
+                            }
                             if (distance < minDistance && distance > 2) {
                                 minDistance = distance;
-                                coords.first = x;
-                                coords.second = y;
+                                coords.first = posX;
+                                coords.second = posY;
                             }
                         }
                     }
+                }
+                if (broke) {
+                    break;
                 }
             }
             if (coords == std::pair {0, 0}) {
@@ -60,7 +70,8 @@ namespace Solution {
                 );
                 position->x = randomX(engine);
                 position->y = randomY(engine);
-                if (field[position->y][position->x] != placeholder) {
+                if (field[position->y][position->x] == Herbivor::sign ||
+                    field[position->y][position->x] == Predator::sign) {
                     position->x = x;
                     position->y = y;
                 }
@@ -76,7 +87,6 @@ namespace Solution {
                     position->y--;
                 }
             }
-            field[y][x] = placeholder;
             field[position->y][position->x] = Predator::sign;
         }
         return true;
