@@ -1,11 +1,7 @@
 namespace Solution {
     using namespace SimulationParameters;
 
-#ifdef WIN32
     std::int32_t Engine::rows;
-#else
-    winsize Engine::window {};
-#endif
 
     Engine::Engine() {
         readConfig();
@@ -14,7 +10,9 @@ namespace Solution {
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
         rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
 #else
+        winsize window {};
         ioctl(STDOUT_FILENO, TIOCGWINSZ, &window);
+        rows = window.ws_row;
 #endif
         std::signal(SIGINT, signalHandler);
     }
@@ -39,9 +37,6 @@ namespace Solution {
                 std::cout << "|" << std::endl;
             }
             std::cout << " " << placeholder << std::endl;
-#ifndef WIN32
-            const std::int32_t rows = window.ws_row;
-#endif
             for (std::int32_t i {};
                  i < std::abs(static_cast<std::int32_t>(fieldSize + 3) - rows);
                  ++i) {
@@ -185,9 +180,6 @@ namespace Solution {
         std::cout << "\tCataclysm: " << cataclysmChance << std::endl;
         std::cout << "\tBirthChance: " << birthChance << std::endl;
         std::cout << "\tDeathChance: " << deathChance << std::endl;
-#ifndef WIN32
-        const std::int32_t rows {window.ws_row};
-#endif
         for (std::int32_t i {}; i < std::abs(rows - 17); ++i) {
             std::cout << std::endl;
         }
@@ -214,9 +206,6 @@ namespace Solution {
         std::cout << "\tLast lived predators count: " << countOfPredators
                   << std::endl;
         std::cout << "\tMonths:" << ticks << std::endl;
-#ifndef WIN32
-        const std::int32_t rows {window.ws_row};
-#endif
         const std::string placeholder(fieldSize * 2, '-');
         std::cout << " " << placeholder << std::endl;
         for (auto& line : field) {

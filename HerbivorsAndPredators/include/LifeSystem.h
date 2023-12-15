@@ -8,7 +8,7 @@ namespace Solution {
         bool onUpdate() override;
 
     private:
-        static bool calculateChance(std::double_t chance, std::double_t coeff);
+        static bool calculateChance(std::double_t chance, std::double_t coeff = 1);
         static void generateGrass();
 
         template <typename T>

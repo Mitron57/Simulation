@@ -12,11 +12,7 @@ namespace Solution {
         static void printConfig();
         MovementSystem movement;
         LifeSystem life;
-#ifdef WIN32
         static std::int32_t rows;
-#else
-        static winsize window;
-#endif
     };
 }
 #endif  // ENGINE_H
