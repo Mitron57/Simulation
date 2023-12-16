@@ -1,0 +1,3 @@
+[submodule "ECS"]
+	path = ECS
+	url = https://github.com/Mitron57/ECS

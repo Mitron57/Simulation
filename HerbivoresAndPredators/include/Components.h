@@ -4,7 +4,7 @@
 using namespace ECS;
 
 namespace Solution {
-    struct Herbivor final : Component {
+    struct Herbivore final : Component {
         static constexpr char sign {'O'};
     };
 

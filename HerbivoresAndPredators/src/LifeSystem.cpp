@@ -9,7 +9,7 @@ namespace Solution {
         std::uniform_int_distribution<std::uint32_t> random(0, fieldSize - 1);
         for (std::uint32_t i {}; i < countOfHerbivors; ++i) {
             std::shared_ptr herbivor {Manager::createEntity()};
-            Manager::addComponent<Herbivor>(herbivor);
+            Manager::addComponent<Herbivore>(herbivor);
             Manager::addComponent<Health>(herbivor);
             Manager::addComponent<Position>(herbivor);
             const auto [position] {Manager::getComponents<Position>(herbivor)};
@@ -19,7 +19,7 @@ namespace Solution {
                 position->x = random(engine);
                 position->y = random(engine);
             }
-            field[position->y][position->x] = Herbivor::sign;
+            field[position->y][position->x] = Herbivore::sign;
         }
         for (std::uint32_t i {}; i < countOfPredators; ++i) {
             std::shared_ptr predator {Manager::createEntity()};
@@ -137,7 +137,7 @@ namespace Solution {
     }
 
     bool LifeSystem::onUpdate() {
-        const std::vector herbivors {Filter<Herbivor>::filter()};
+        const std::vector herbivors {Filter<Herbivore>::filter()};
         const std::vector predators {Filter<Predator>::filter()};
         countOfHerbivors = herbivors.size();
         if (ticks % 12 == 1) {
@@ -173,10 +173,10 @@ namespace Solution {
             }
             if (health->age <= maxReproductiveAge &&
                 health->age >= minReproductiveAge &&
-                std::get<0>(isNear(Herbivor::sign, position)) &&
+                std::get<0>(isNear(Herbivore::sign, position)) &&
                 calculateChance(birthChance, health->age) &&
                 health->satiety > 0) {
-                bornChild<Herbivor>(position->x, position->y);
+                bornChild<Herbivore>(position->x, position->y);
             }
             if (ticks % 12 + 1 == health->birthday) {
                 health->age++;
@@ -192,7 +192,7 @@ namespace Solution {
             const auto [position, health] {
                 Manager::getComponents<Position, Health>(predator)
             };
-            const auto [foodIsNear, x, y] {isNear(Herbivor::sign, position)};
+            const auto [foodIsNear, x, y] {isNear(Herbivore::sign, position)};
             if (foodIsNear) {
                 health->satiety++;
                 const auto herbivor {*std::ranges::find_if(

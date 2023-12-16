@@ -3,7 +3,7 @@ namespace Solution {
     bool MovementSystem::onUpdate() {
         std::random_device device {};
         std::mt19937 engine {device()};
-        const std::vector herbivors {Filter<Herbivor>::filter()};
+        const std::vector herbivors {Filter<Herbivore>::filter()};
         const std::vector predators {Filter<Predator>::filter()};
         for (auto& herbivor : herbivors) {
             const auto [position] {Manager::getComponents<Position>(herbivor)};
@@ -18,13 +18,13 @@ namespace Solution {
             );
             position->x = randomX(engine);
             position->y = randomY(engine);
-            if (field[position->y][position->x] == Herbivor::sign ||
+            if (field[position->y][position->x] == Herbivore::sign ||
                 field[position->y][position->x] == Predator::sign) {
                 position->x = x;
                 position->y = y;
             }
             field[y][x] = placeholder;
-            field[position->y][position->x] = Herbivor::sign;
+            field[position->y][position->x] = Herbivore::sign;
         }
         for (auto& predator : predators) {
             const auto [position] {Manager::getComponents<Position>(predator)};
@@ -43,7 +43,7 @@ namespace Solution {
                     for (std::int32_t posX {position->x - 3};
                          posX < position->x + 3; ++posX) {
                         if (0 <= posX && posX < fieldSize) {
-                            if (field[posY][posX] == Herbivor::sign) {
+                            if (field[posY][posX] == Herbivore::sign) {
                                 const std::uint32_t distance =
                                     std::pow(position->y - posY, 2) +
                                     std::pow(position->x - posX, 2);
@@ -78,7 +78,7 @@ namespace Solution {
                 );
                 position->x = randomX(engine);
                 position->y = randomY(engine);
-                if (field[position->y][position->x] == Herbivor::sign ||
+                if (field[position->y][position->x] == Herbivore::sign ||
                     field[position->y][position->x] == Predator::sign) {
                     position->x = x;
                     position->y = y;
