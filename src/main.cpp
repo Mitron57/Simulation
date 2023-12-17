@@ -1,4 +1,3 @@
-#include <ECS.h>
 #include <Solution.h>
 
 using namespace ECS;
