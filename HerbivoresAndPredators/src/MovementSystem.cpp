@@ -3,10 +3,10 @@ namespace Solution {
     bool MovementSystem::onUpdate() {
         std::random_device device {};
         std::mt19937 engine {device()};
-        const std::vector herbivors {Filter<Herbivore>::filter()};
+        const std::vector herbivores {Filter<Herbivore>::filter()};
         const std::vector predators {Filter<Predator>::filter()};
-        for (auto& herbivor : herbivors) {
-            const auto [position] {Manager::getComponents<Position>(herbivor)};
+        for (auto& herbivore : herbivores) {
+            const auto [position] {Manager::getComponents<Position>(herbivore)};
             const std::int32_t x {position->x}, y {position->y};
             std::uniform_int_distribution randomX(
                 position->x == 0 ? 0 : position->x - 1,
@@ -37,11 +37,11 @@ namespace Solution {
                 std::numeric_limits<std::int32_t>::max()
             };
             bool broke = false;
-            for (std::int32_t posY {position->y - 3}; posY < position->y + 3;
+            for (std::int32_t posY {position->y - 3}; posY <= position->y + 3;
                  ++posY) {
                 if (0 <= posY && posY < fieldSize) {
                     for (std::int32_t posX {position->x - 3};
-                         posX < position->x + 3; ++posX) {
+                         posX <= position->x + 3; ++posX) {
                         if (0 <= posX && posX < fieldSize) {
                             if (field[posY][posX] == Herbivore::sign) {
                                 const std::uint32_t distance =

@@ -79,8 +79,8 @@ namespace Solution {
 
     template <typename T>
     void LifeSystem::bornChild(std::int32_t posX, std::int32_t posY) {
-        for (std::int32_t y {posY - 2}; y < posY + 2; ++y) {
-            for (std::int32_t x {posX - 2}; x < posX + 2; ++x) {
+        for (std::int32_t y {posY - 2}; y <= posY + 2; ++y) {
+            for (std::int32_t x {posX - 2}; x <= posX + 2; ++x) {
                 if (0 <= y && y < fieldSize && 0 <= x && x < fieldSize) {
                     if (field[y][x] == placeholder) {
                         const auto child = Manager::createEntity();
@@ -121,9 +121,9 @@ namespace Solution {
     std::tuple<bool, std::int32_t, std::int32_t> LifeSystem::isNear(
         char object, const std::shared_ptr<Position>& position
     ) {
-        for (std::int32_t y {position->y - 1}; y < position->y + 1; ++y) {
+        for (std::int32_t y {position->y - 1}; y <= position->y + 1; ++y) {
             if (0 <= y && y < fieldSize) {
-                for (std::int32_t x {position->x - 1}; x < position->x + 1; ++x) {
+                for (std::int32_t x {position->x - 1}; x <= position->x + 1; ++x) {
                     if (0 <= x && x < fieldSize) {
                         if (field[y][x] == object &&
                             !(x == position->x && y == position->y)) {
