@@ -27,24 +27,40 @@ namespace Solution {
                 endGame();
                 break;
             }
-            const std::string placeholder(fieldSize * 2, '-');
-            std::cout << " " << placeholder << std::endl;
-            for (auto& line : field) {
-                std::cout << "| ";
-                for (const char elem : line) {
-                    std::cout << elem << " ";
-                }
-                std::cout << "|" << std::endl;
-            }
-            std::cout << " " << placeholder << std::endl;
+            printField();
             for (std::int32_t i {};
-                 i < std::abs(static_cast<std::int32_t>(fieldSize + 3) - rows);
+                 i < std::abs(static_cast<std::int32_t>(fieldSize + 5) - rows);
                  ++i) {
                 std::cout << std::endl;
             }
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(300ms);
         }
+    }
+
+    void Engine::printField() {
+        const std::string placeholder(fieldSize * 2, '-');
+        std::cout << " " << placeholder << std::endl;
+        for (const auto& line : field) {
+            std::cout << "| ";
+            for (const auto& entity : line) {
+                if (!entity) {
+                    std::cout << ". ";
+                    continue;
+                }
+                if (Manager::hasComponent<Herbivore>(entity)) {
+                    std::cout << Herbivore::sign << " ";
+                    continue;
+                }
+                if (Manager::hasComponent<Predator>(entity)) {
+                    std::cout << Predator::sign << " ";
+                    continue;
+                }
+                std::cout << Grass::sign << " ";
+            }
+            std::cout << "|" << std::endl;
+        }
+        std::cout << " " << placeholder << std::endl;
     }
 
     void Engine::readConfig() {
@@ -61,22 +77,21 @@ namespace Solution {
         deathChance = 0.01;
         birthChance = 0.5;
         years = 50;
-        placeholder = '.';
         if (config.is_open()) {
             for (std::size_t i {1}; !config.eof(); ++i) {
-                std::string field {};
-                std::getline(config, field);
-                if (!field.empty()) {
-                    const std::size_t delim {field.find(": ")};
+                std::string line {};
+                std::getline(config, line);
+                if (!line.empty()) {
+                    const std::size_t delim {line.find(": ")};
                     if (delim == std::string::npos) {
-                        std::cerr << "Unexpected field in config, line "
-                                      << i << " ignored: \"" << field << "\""
+                        std::cerr << "Unexpected line in config, line "
+                                      << i << " ignored: \"" << line << "\""
                                       << std::endl;
                         continue;
                     }
-                    const std::string& param {field.substr(0, delim)};
+                    const std::string& param {line.substr(0, delim)};
                     const std::string& value {
-                        field.substr(delim + 2, std::string::npos)
+                        line.substr(delim + 2, std::string::npos)
                     };
                     if (std::ranges::all_of(value, [](auto elem) {
                             return '0' <= elem && elem <= '9';
@@ -101,7 +116,7 @@ namespace Solution {
                             const std::uint32_t regen = std::stoi(value);
                             if (regen > 100) {
                                 std::cerr << "Incorrect value in line " << i
-                                          << " ignored: \"" << field << "\", "
+                                          << " ignored: \"" << line << "\", "
                                           << value << " must be less than 100."
                                           << std::endl;
                             } else {
@@ -111,7 +126,7 @@ namespace Solution {
                             const std::uint32_t percent = std::stoi(value);
                             if (percent > 100) {
                                 std::cerr << "Incorrect value in line " << i
-                                          << " ignored: \"" << field << "\", "
+                                          << " ignored: \"" << line << "\", "
                                           << value << " must be less than 100."
                                           << std::endl;
                             } else {
@@ -121,7 +136,7 @@ namespace Solution {
                             const std::uint32_t percent = std::stoi(value);
                             if (percent > 100) {
                                 std::cerr << "Incorrect value in line " << i
-                                          << " ignored: \"" << field << "\", "
+                                          << " ignored: \"" << line << "\", "
                                           << value << " must be less than 100."
                                           << std::endl;
                             } else {
@@ -131,20 +146,20 @@ namespace Solution {
                             const std::uint32_t percent = std::stoi(value);
                             if (percent > 100) {
                                 std::cerr << "Incorrect value in line " << i
-                                          << " ignored: \"" << field << "\", "
+                                          << " ignored: \"" << line << "\", "
                                           << value << " must be less than 100."
                                           << std::endl;
                             } else {
                                 deathChance = percent / 100.0;
                             }
                         } else {
-                            std::cerr << "Unexpected field in config, line "
-                                      << i << " ignored: \"" << field << "\""
+                            std::cerr << "Unexpected line in config, line "
+                                      << i << " ignored: \"" << line << "\""
                                       << std::endl;
                         }
                     } else {
                         std::cerr << "Cannot recognize symbol in config, line "
-                                  << i << " ignored: \"" << field << "\""
+                                  << i << " ignored: \"" << line << "\""
                                   << std::endl;
                     }
                 }
@@ -156,7 +171,7 @@ namespace Solution {
                 << std::endl;
         }
         for (std::uint32_t i {}; i < fieldSize; ++i) {
-            field.emplace_back(fieldSize, placeholder);
+            field.emplace_back(fieldSize, nullptr);
         }
     }
 
@@ -197,25 +212,16 @@ namespace Solution {
     void Engine::endGame() {
         std::cout << "============SIMULATION STATISTICS============"
                   << std::endl;
-        std::cout << "\tCount of dead herbivors: " << deadHerbivors
+        std::cout << "\tCount of dead herbivors: " << Herbivore::dead
                   << std::endl;
-        std::cout << "\tCount of dead predators: " << deadPredators
+        std::cout << "\tCount of dead predators: " << Predator::dead
                   << std::endl;
         std::cout << "\tLast lived herbivors count: " << countOfHerbivors
                   << std::endl;
         std::cout << "\tLast lived predators count: " << countOfPredators
                   << std::endl;
         std::cout << "\tMonths:" << ticks << std::endl;
-        const std::string placeholder(fieldSize * 2, '-');
-        std::cout << " " << placeholder << std::endl;
-        for (auto& line : field) {
-            std::cout << "| ";
-            for (const char elem : line) {
-                std::cout << elem << " ";
-            }
-            std::cout << "|" << std::endl;
-        }
-        std::cout << " " << placeholder << std::endl;
+        printField();
         for (std::int32_t i {}; i < std::abs(rows - static_cast<std::int32_t>(fieldSize + 10)); ++i) {
             std::cout << std::endl;
         }

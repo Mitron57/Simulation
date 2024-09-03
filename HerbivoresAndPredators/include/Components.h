@@ -6,10 +6,18 @@ using namespace ECS;
 namespace Solution {
     struct Herbivore final : Component {
         static constexpr char sign {'O'};
+        static std::uint64_t dead;
     };
+    std::uint64_t Herbivore::dead = 0;
 
     struct Predator final : Component {
         static constexpr char sign {'X'};
+        static std::uint64_t dead;
+    };
+    std::uint64_t Predator::dead = 0;
+
+    struct Grass final : Component {
+        static constexpr char sign {'#'};
     };
 
     struct Health final : Component {

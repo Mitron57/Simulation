@@ -6,6 +6,7 @@ namespace Solution {
         void run();
 
     private:
+        static void printField();
         static void readConfig();
         static void signalHandler(std::int32_t);
         static void endGame();

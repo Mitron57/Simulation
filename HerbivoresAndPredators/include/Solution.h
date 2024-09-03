@@ -17,7 +17,7 @@
 
 
 namespace Solution {
-    using Field = std::vector<std::vector<char>>;
+    using Field = std::vector<std::vector<std::shared_ptr<ECS::Entity>>>;
 }
 
 #include <SimulationParameters.h>

@@ -16,9 +16,6 @@ namespace Solution::SimulationParameters {
     static std::double_t cataclysmChance {};
     static std::double_t deathChance {};
     static std::double_t birthChance {};
-    static std::uint32_t deadHerbivors {};
-    static std::uint32_t deadPredators {};
-    static char placeholder {};
 }  // namespace Solution::SimulationParameters
 
 #endif  // SIMULATIONPARAMETERS_H
